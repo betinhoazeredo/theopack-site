@@ -1,22 +1,576 @@
-name: Deploy FTP
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Guia Ultra-Detalhado: Adicionar deploy.yml no GitHub via Navegador</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            min-height: 100vh;
+        }
+        header {
+            background: #0969da;
+            color: white;
+            padding: 2rem;
+            text-align: center;
+        }
+        header h1 {
+            font-size: 2.5rem;
+            margin-bottom: 0.5rem;
+        }
+        .progress {
+            background: white;
+            margin: 2rem auto;
+            max-width: 800px;
+            padding: 1rem;
+            border-radius: 10px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+        .progress-bar {
+            width: 100%;
+            height: 20px;
+            background: #e0e0e0;
+            border-radius: 10px;
+            overflow: hidden;
+            margin-bottom: 1rem;
+        }
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #0969da, #0d6efd);
+            width: 0%;
+            transition: width 0.3s ease;
+        }
+        .progress-text {
+            text-align: center;
+            font-weight: bold;
+        }
+        main {
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+        .step {
+            background: white;
+            margin-bottom: 2rem;
+            padding: 2rem;
+            border-radius: 15px;
+            box-shadow: 0 8px 25px rgba(0,0,0,0.1);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+        .step:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 12px 35px rgba(0,0,0,0.15);
+        }
+        .step h2 {
+            color: #0969da;
+            font-size: 1.8rem;
+            margin-bottom: 1rem;
+            display: flex;
+            align-items: center;
+        }
+        .step h2::before {
+            content: '';
+            display: inline-block;
+            width: 40px;
+            height: 40px;
+            background: #0969da;
+            color: white;
+            border-radius: 50%;
+            margin-right: 1rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+        }
+        .description {
+            margin-bottom: 1.5rem;
+            font-size: 1.1rem;
+        }
+        .svg-container {
+            background: #f8f9fa;
+            padding: 1rem;
+            border-radius: 10px;
+            margin: 1.5rem 0;
+            overflow: auto;
+            max-height: 400px;
+        }
+        .svg-container svg {
+            width: 100%;
+            height: auto;
+            max-height: 350px;
+        }
+        .checklist {
+            margin: 1.5rem 0;
+        }
+        .checklist input[type="checkbox"] {
+            transform: scale(1.5);
+            margin-right: 0.5rem;
+            accent-color: #0969da;
+        }
+        .tip {
+            background: #fff3cd;
+            border: 1px solid #ffeaa7;
+            border-radius: 8px;
+            padding: 1rem;
+            margin: 1rem 0;
+        }
+        .tip::before {
+            content: '💡';
+            margin-right: 0.5rem;
+        }
+        .error-section {
+            background: #f8d7da;
+            border: 1px solid #f5c6cb;
+            border-radius: 8px;
+            padding: 1rem;
+            margin: 1rem 0;
+        }
+        .yaml-section {
+            background: white;
+            padding: 2rem;
+            border-radius: 15px;
+            box-shadow: 0 8px 25px rgba(0,0,0,0.1);
+            margin: 2rem 0;
+        }
+        .yaml-section pre {
+            background: #2d3748;
+            color: #a0aec0;
+            padding: 1.5rem;
+            border-radius: 10px;
+            overflow-x: auto;
+            position: relative;
+            margin-bottom: 1rem;
+        }
+        .copy-btn {
+            background: #0969da;
+            color: white;
+            border: none;
+            padding: 0.75rem 1.5rem;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 1rem;
+            transition: background 0.3s;
+        }
+        .copy-btn:hover {
+            background: #075985;
+        }
+        .nav-btns {
+            display: flex;
+            gap: 1rem;
+            justify-content: space-between;
+            margin: 2rem 0;
+        }
+        .nav-btn {
+            background: #0969da;
+            color: white;
+            border: none;
+            padding: 1rem 2rem;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 1.1rem;
+            transition: all 0.3s;
+        }
+        .nav-btn:hover {
+            background: #075985;
+            transform: scale(1.05);
+        }
+        .nav-btn:disabled {
+            background: #6c757d;
+            cursor: not-allowed;
+            transform: none;
+        }
+        footer {
+            background: #333;
+            color: white;
+            text-align: center;
+            padding: 2rem;
+            margin-top: 4rem;
+        }
+        .link-btn {
+            background: #28a745;
+            color: white;
+            padding: 0.5rem 1rem;
+            border-radius: 5px;
+            text-decoration: none;
+            margin: 0 0.5rem;
+            display: inline-block;
+        }
+        @media (max-width: 768px) {
+            main {
+                padding: 1rem;
+            }
+            .nav-btns {
+                flex-direction: column;
+            }
+            header h1 {
+                font-size: 2rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <h1>🛠️ Guia PASSO A PASSO VISUAL: Adicionar deploy.yml no GitHub</h1>
+        <p>Crie seu workflow de deploy em minutos diretamente pelo navegador!</p>
+    </header>
+
+    <div class="progress">
+        <div class="progress-bar">
+            <div class="progress-fill" id="progressFill"></div>
+        </div>
+        <div class="progress-text" id="progressText">0/10 passos concluídos</div>
+    </div>
+
+    <main>
+        <div class="nav-btns">
+            <button class="nav-btn" id="prevBtn" onclick="prevStep()" disabled>⬅️ Anterior</button>
+            <button class="nav-btn" id="nextBtn" onclick="nextStep()">Próximo ➡️</button>
+        </div>
+
+        <div class="step active" id="step1">
+            <h2>1</h2>
+            <div class="description">
+                <strong>O que você vai ver:</strong> Página inicial do GitHub com lista de repositórios.<br>
+                Clique em "<strong>Your repositories</strong>" ou busque seu repo. Acesse: <a href="https://github.com/" target="_blank">github.com</a>
+            </div>
+            <div class="svg-container">
+                <svg viewBox="0 0 800 400">
+                    <rect x="50" y="50" width="700" height="300" rx="10" fill="#fff" stroke="#ddd" stroke-width="2"/>
+                    <text x="400" y="90" text-anchor="middle" font-size="24" fill="#333" font-weight="bold">GitHub</text>
+                    <rect x="100" y="120" width="200" height="40" rx="5" fill="#f6f8fa" stroke="#0969da" stroke-width="3"/>
+                    <text x="200" y="145" text-anchor="middle" font-size="16" fill="#0969da" font-weight="bold">Your repositories</text>
+                    <defs>
+                        <marker id="arrowhead" markerWidth="10" markerHeight="7" refX="10" refY="3.5" orient="auto">
+                            <polygon points="0 0, 10 3.5, 0 7" fill="#ff0000"/>
+                        </marker>
+                    </defs>
+                    <line x1="250" y1="140" x2="350" y2="140" stroke="#ff0000" stroke-width="4" marker-end="url(#arrowhead)" stroke-dasharray="5,5"/>
+                    <circle cx="300" cy="140" r="20" fill="#ff0000" stroke="white" stroke-width="2"/>
+                    <text x="300" y="145" text-anchor="middle" font-size="14" fill="white" font-weight="bold">CLIQUE</text>
+                    <text x="100" y="380" font-size="14" fill="#666">Tela inicial do GitHub</text>
+                </svg>
+            </div>
+            <div class="checklist">
+                <input type="checkbox" id="check1" onchange="updateProgress()">
+                <label for="check1">Passo 1 concluído ✅</label>
+            </div>
+            <div class="tip">
+                Dica: Certifique-se de estar logado na sua conta GitHub.
+            </div>
+        </div>
+
+        <div class="step" id="step2">
+            <h2>2</h2>
+            <div class="description">
+                <strong>O que você vai ver:</strong> Página do seu repositório com abas Code, Issues, Pull requests, Actions.<br>
+                Selecione a branch <strong>main</strong> no dropdown à esquerda.
+            </div>
+            <div class="svg-container">
+                <svg viewBox="0 0 800 400">
+                    <rect x="50" y="50" width="700" height="300" rx="10" fill="#fff" stroke="#ddd" stroke-width="2"/>
+                    <text x="400" y="90" text-anchor="middle" font-size="20" fill="#333">Seu Repositório</text>
+                    <rect x="100" y="130" width="150" height="30" rx="5" fill="#f6f8fa" stroke="#0969da" stroke-width="2"/>
+                    <text x="175" y="150" text-anchor="middle" font-size="14">main</text>
+                    <line x1="200" y1="145" x2="300" y2="145" stroke="#ff0000" stroke-width="4" marker-end="url(#arrowhead)" stroke-dasharray="5,5"/>
+                    <circle cx="250" cy="145" r="15" fill="#ff0000" stroke="white" stroke-width="2"/>
+                    <text x="250" y="150" text-anchor="middle" font-size="12" fill="white">VERIFIQUE</text>
+                    <text x="100" y="380" font-size="14" fill="#666">Página do repositório - Branch main</text>
+                </svg>
+            </div>
+            <div class="checklist">
+                <input type="checkbox" id="check2" onchange="updateProgress()">
+                <label for="check2">Passo 2 concluído ✅</label>
+            </div>
+            <div class="tip">
+                Atenção: Se sua branch principal for 'master', use ela.
+            </div>
+        </div>
+
+        <div class="step" id="step3">
+            <h2>3</h2>
+            <div class="description">
+                <strong>O que você vai ver:</strong> Lista de arquivos.<br>
+                Clique no botão verde "<strong>Add file</strong>" &gt; "<strong>Create new file</strong>".
+            </div>
+            <div class="svg-container">
+                <svg viewBox="0 0 800 400">
+                    <rect x="50" y="50" width="700" height="300" rx="10" fill="#fff" stroke="#ddd" stroke-width="2"/>
+                    <rect x="100" y="120" width="120" height="40" rx="5" fill="#238636" stroke="#fff" stroke-width="2"/>
+                    <text x="160" y="145" text-anchor="middle" font-size="16" fill="white" font-weight="bold">Add file</text>
+                    <text x="160" y="165" text-anchor="middle" font-size="12" fill="white">▼ Create new file</text>
+                    <line x1="220" y1="140" x2="350" y2="140" stroke="#ff0000" stroke-width="4" marker-end="url(#arrowhead)" stroke-dasharray="5,5"/>
+                    <circle cx="285" cy="140" r="20" fill="#ff0000" stroke="white" stroke-width="2"/>
+                    <text x="285" y="145" text-anchor="middle" font-size="14" fill="white">CLIQUE</text>
+                </svg>
+            </div>
+            <div class="checklist">
+                <input type="checkbox" id="check3" onchange="updateProgress()">
+                <label for="check3">Passo 3 concluído ✅</label>
+            </div>
+        </div>
+
+        <div class="step" id="step4">
+            <h2>4</h2>
+            <div class="description">
+                <strong>O que você vai ver:</strong> Editor de novo arquivo com campo "Name your file...".<br>
+                Digite exatamente: <code>.github/workflows/deploy.yml</code>
+            </div>
+            <div class="svg-container">
+                <svg viewBox="0 0 800 400">
+                    <rect x="50" y="50" width="700" height="300" rx="10" fill="#fff" stroke="#ddd" stroke-width="2"/>
+                    <rect x="100" y="120" width="500" height="40" rx="5" fill="#f6f8fa" stroke="#0969da" stroke-width="3"/>
+                    <text x="150" y="145" font-size="16" fill="#333">.github/workflows/deploy.yml</text>
+                    <line x1="200" y1="140" x2="100" y2="140" stroke="#ff0000" stroke-width="4" marker-end="url(#arrowhead)" stroke-dasharray="5,5"/>
+                    <circle cx="150" cy="140" r="20" fill="#ff0000" stroke="white" stroke-width="2"/>
+                    <text x="150" y="145" text-anchor="middle" font-size="14" fill="white">DIGITE</text>
+                </svg>
+            </div>
+            <div class="checklist">
+                <input type="checkbox" id="check4" onchange="updateProgress()">
+                <label for="check4">Passo 4 concluído ✅</label>
+            </div>
+            <div class="tip">
+                Atenção: O diretório .github será criado automaticamente!
+            </div>
+        </div>
+
+        <div class="step" id="step5">
+            <h2>5</h2>
+            <div class="description">
+                Role para baixo no editor vazio. Cole o código YAML abaixo.
+            </div>
+            <div class="checklist">
+                <input type="checkbox" id="check5" onchange="updateProgress()">
+                <label for="check5">Passo 5 concluído ✅</label>
+            </div>
+        </div>
+
+        <div class="yaml-section">
+            <h2>📋 Código YAML Pronto para Copiar (Deploy para GitHub Pages)</h2>
+            <pre><code id="yamlCode">name: Deploy to GitHub Pages
 
 on:
   push:
-    branches: [ main ]
+    branches: [ "main" ]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
 
 jobs:
-  deploy:
+  build:
     runs-on: ubuntu-latest
-
     steps:
     - name: Checkout
       uses: actions/checkout@v4
-
-    - name: Deploy to FTP
-      uses: SamKirkland/FTP-Deploy-Action@v4.3.5
+    - name: Setup Pages
+      uses: actions/configure-pages@v4
+    - name: Upload artifact
+      uses: actions/upload-pages-artifact@v3
       with:
-        server: ${{ secrets.FTP_SERVER }}
-        username: ${{ secrets.FTP_USERNAME }}
-        password: ${{ secrets.FTP_PASSWORD }}
-        local-dir: ./
-        server-dir: /public_html/
+        path: '.'
+
+  deploy:
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    runs-on: ubuntu-latest
+    needs: build
+    steps:
+    - name: Deploy to GitHub Pages
+      id: deployment
+      uses: actions/deploy-pages@v4</code></pre>
+            <button class="copy-btn" onclick="copyYaml()">📋 Copiar YAML</button>
+        </div>
+
+        <div class="step" id="step6">
+            <h2>6</h2>
+            <div class="description">
+                <strong>O que você vai ver:</strong> Seção "Commit changes" no final da página.<br>
+                Campo: "Commit new file" pré-preenchido.
+            </div>
+            <div class="svg-container">
+                <svg viewBox="0 0 800 400">
+                    <rect x="50" y="50" width="700" height="300" rx="10" fill="#fff" stroke="#ddd" stroke-width="2"/>
+                    <rect x="100" y="150" width="600" height="100" rx="10" fill="#f6f8fa" stroke="#0969da" stroke-width="2"/>
+                    <text x="400" y="180" text-anchor="middle" font-size="16">Commit new file</text>
+                    <text x="400" y="210" text-anchor="middle" font-size="14">Add deploy.yml workflow</text>
+                </svg>
+            </div>
+            <div class="checklist">
+                <input type="checkbox" id="check6" onchange="updateProgress()">
+                <label for="check6">Passo 6 concluído ✅</label>
+            </div>
+        </div>
+
+        <div class="step" id="step7">
+            <h2>7</h2>
+            <div class="description">
+                Edite o campo de mensagem para: <strong>"Adicionar workflow de deploy para GitHub Pages"</strong>
+            </div>
+            <div class="checklist">
+                <input type="checkbox" id="check7" onchange="updateProgress()">
+                <label for="check7">Passo 7 concluído ✅</label>
+            </div>
+        </div>
+
+        <div class="step" id="step8">
+            <h2>8</h2>
+            <div class="description">
+                <strong>O que você vai ver:</strong> Radio button "Commit directly to the main branch" selecionado.<br>
+                Certifique-se de que está marcado.
+            </div>
+            <div class="svg-container">
+                <svg viewBox="0 0 800 400">
+                    <rect x="50" y="50" width="700" height="300" rx="10" fill="#fff" stroke="#ddd" stroke-width="2"/>
+                    <circle cx="150" cy="150" r="15" fill="#0969da" stroke="white" stroke-width="2"/>
+                    <text x="170" y="155" font-size="14" fill="#333">Commit directly to main</text>
+                    <line x1="150" y1="150" x2="250" y2="150" stroke="#ff0000" stroke-width="4" marker-end="url(#arrowhead)" stroke-dasharray="5,5"/>
+                </svg>
+            </div>
+            <div class="checklist">
+                <input type="checkbox" id="check8" onchange="updateProgress()">
+                <label for="check8">Passo 8 concluído ✅</label>
+            </div>
+        </div>
+
+        <div class="step" id="step9">
+            <h2>9</h2>
+            <div class="description">
+                Clique no botão verde grande "<strong>Commit new file</strong>" no final.
+            </div>
+            <div class="svg-container">
+                <svg viewBox="0 0 800 400">
+                    <rect x="50" y="50" width="700" height="300" rx="10" fill="#fff" stroke="#ddd" stroke-width="2"/>
+                    <rect x="300" y="200" width="200" height="50" rx="5" fill="#238636" stroke="#fff" stroke-width="2"/>
+                    <text x="400" y="230" text-anchor="middle" font-size="18" fill="white" font-weight="bold">Commit new file</text>
+                    <line x1="500" y1="225" x2="600" y2="225" stroke="#ff0000" stroke-width="4" marker-end="url(#arrowhead)" stroke-dasharray="5,5"/>
+                    <circle cx="550" cy="225" r="20" fill="#ff0000" stroke="white" stroke-width="2"/>
+                    <text x="550" y="230" text-anchor="middle" font-size="14" fill="white">CLIQUE</text>
+                </svg>
+            </div>
+            <div class="checklist">
+                <input type="checkbox" id="check9" onchange="updateProgress()">
+                <label for="check9">Passo 9 concluído ✅</label>
+            </div>
+        </div>
+
+        <div class="step" id="step10">
+            <h2>10</h2>
+            <div class="description">
+                <strong>O que você vai ver:</strong> Arquivo deploy.yml criado. Vá para aba "<strong>Actions</strong>" para ver o workflow rodando.
+            </div>
+            <div class="svg-container">
+                <svg viewBox="0 0 800 400">
+                    <rect x="50" y="50" width="700" height="300" rx="10" fill="#fff" stroke="#ddd" stroke-width="2"/>
+                    <text x="400" y="100" text-anchor="middle" font-size="20">Actions</text>
+                    <rect x="100" y="150" width="100" height="30" rx="5" fill="#f6f8fa" stroke="#0969da" stroke-width="2"/>
+                    <text x="150" y="170" text-anchor="middle" font-size="14">Deploy...</text>
+                </svg>
+            </div>
+            <div class="checklist">
+                <input type="checkbox" id="check10" onchange="updateProgress()">
+                <label for="check10">Passo 10 concluído ✅</label>
+            </div>
+            <div class="tip">
+                Parabéns! Seu deploy está configurado. Monitore em Actions.
+            </div>
+        </div>
+
+        <div class="error-section">
+            <h3>❌ O que fazer se der erro:</h3>
+            <ul>
+                <li><strong>Erro de sintaxe YAML:</strong> Verifique indentação (use espaços, não tabs). Copie novamente o código.</li>
+                <li><strong>Permissões Actions desabilitadas:</strong> Vá em Settings > Actions > General > Enable workflows.</li>
+                <li><strong>Branch errada:</strong> Mude para main e repita.</li>
+                <li><strong>Workflow não roda:</strong> Faça um push pequeno (edite README). Link: <a href="https://docs.github.com/en/actions" target="_blank">Docs GitHub Actions</a></li>
+            </ul>
+        </div>
+    </main>
+
+    <footer>
+        <p>Feito com ❤️ para devs | <a href="https://github.com/new" class="link-btn" target="_blank">Criar Repo Novo</a> | <a href="https://github.com/features/actions" class="link-btn" target="_blank">GitHub Actions</a></p>
+    </footer>
+
+    <script>
+        let currentStep = 1;
+        const totalSteps = 10;
+
+        function updateProgress() {
+            let checked = 0;
+            for (let i = 1; i <= totalSteps; i++) {
+                if (document.getElementById(`check${i}`).checked) checked++;
+            }
+            const percent = (checked / totalSteps) * 100;
+            document.getElementById('progressFill').style.width = percent + '%';
+            document.getElementById('progressText').textContent = `${checked}/${totalSteps} passos concluídos`;
+        }
+
+        function nextStep() {
+            const next = currentStep + 1;
+            if (next <= totalSteps) {
+                document.getElementById(`step${currentStep}`).classList.remove('active');
+                document.getElementById(`step${next}`).classList.add('active');
+                currentStep = next;
+                updateNav();
+                document.getElementById(`step${next}`).scrollIntoView({ behavior: 'smooth' });
+            }
+        }
+
+        function prevStep() {
+            const prev = currentStep - 1;
+            if (prev >= 1) {
+                document.getElementById(`step${currentStep}`).classList.remove('active');
+                document.getElementById(`step${prev}`).classList.add('active');
+                currentStep = prev;
+                updateNav();
+                document.getElementById(`step${prev}`).scrollIntoView({ behavior: 'smooth' });
+            }
+        }
+
+        function updateNav() {
+            document.getElementById('prevBtn').disabled = currentStep === 1;
+            document.getElementById('nextBtn').disabled = currentStep === totalSteps;
+            document.getElementById('nextBtn').textContent = currentStep === totalSteps ? 'Concluído ✅' : 'Próximo ➡️';
+        }
+
+        function copyYaml() {
+            const code = document.getElementById('yamlCode').textContent;
+            navigator.clipboard.writeText(code).then(() => {
+                const btn = event.target;
+                const original = btn.textContent;
+                btn.textContent = 'Copiado! ✅';
+                btn.style.background = '#28a745';
+                setTimeout(() => {
+                    btn.textContent = original;
+                    btn.style.background = '#0969da';
+                }, 2000);
+            });
+        }
+
+        // Init
+        document.getElementById('step1').classList.add('active');
+        updateNav();
+        updateProgress();
+
+        // Add style for active step
+        const style = document.createElement('style');
+        style.textContent = `
+            .step { display: none; }
+            .step.active { display: block; }
+        `;
+        document.head.appendChild(style);
+    </script>
+</body>
+</html>
